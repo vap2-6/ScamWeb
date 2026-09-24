@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Scam Ad Detector</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Scam / illegal-sale ad detector</h1>
+    <p class="subtitle">Evidence compilation dashboard</p>
+  </header>
+
+  <main>
+    <section id="input-panel">
+      <h2>Add a post</h2>
+      <textarea id="caption" placeholder="Caption text"></textarea>
+      <textarea id="ocrText" placeholder="OCR'd text from image (optional)"></textarea>
+      <input id="sourceUrl" placeholder="Source post URL (optional)" />
+      <button id="analyzeBtn">Analyze</button>
+      <p id="status"></p>
+    </section>
+
+    <section id="results-panel">
+      <h2>Results</h2>
+      <div id="results"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

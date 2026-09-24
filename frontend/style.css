@@ -1,0 +1,13 @@
+body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+header h1 { margin-bottom: 4px; }
+.subtitle { color: #666; margin-top: 0; }
+textarea, input { width: 100%; box-sizing: border-box; margin: 6px 0; padding: 8px; font-family: inherit; }
+textarea { height: 70px; }
+button { padding: 10px 16px; cursor: pointer; }
+#results-panel { margin-top: 32px; }
+.card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.risk-high { border-left: 4px solid #c0392b; }
+.risk-mid { border-left: 4px solid #d68910; }
+.risk-low { border-left: 4px solid #27ae60; }
+.tag { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 4px; }
+pre { background: #f7f7f7; padding: 12px; overflow-x: auto; font-size: 12px; }

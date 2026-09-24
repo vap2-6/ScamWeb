@@ -1,0 +1,18 @@
+[
+  {
+    "id": "sample-001",
+    "source_url": "",
+    "caption": "REPLACE ME: paste a real caption you collected here",
+    "ocr_text": "REPLACE ME: paste OCR'd text from the ad image here",
+    "image_url": "",
+    "collected_at": "2026-09-22T00:00:00Z"
+  },
+  {
+    "id": "sample-002",
+    "source_url": "",
+    "caption": "REPLACE ME",
+    "ocr_text": "REPLACE ME",
+    "image_url": "",
+    "collected_at": "2026-09-22T00:00:00Z"
+  }
+]
