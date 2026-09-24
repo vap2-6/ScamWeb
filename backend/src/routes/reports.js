@@ -1,21 +1,28 @@
 import { Router } from "express";
-import { formatReport } from "../utils/reportFormatter.js";
+import { formatClusterReport, formatSinglePostReport } from "../utils/reportFormatter.js";
 
 const router = Router();
 
 // POST /api/reports
-// body: { post: {...}, analysis: {...}, safeBrowsing: {...} }
-// Returns a formatted report object. Frontend handles download/copy —
-// this endpoint does NOT submit anywhere, by design.
+// Accepts either:
+// 1) { cluster: { ... } } -> Generates a comprehensive Syndicate Intelligence Dossier
+// 2) { post: {...}, analysis: {...}, safeBrowsing: {...} } -> Generates a single incident report
 router.post("/", (req, res) => {
-  const { post, analysis, safeBrowsing } = req.body;
+  const { cluster, post, analysis, safeBrowsing } = req.body;
 
-  if (!post || !analysis) {
-    return res.status(400).json({ error: "post and analysis are required" });
+  if (cluster) {
+    const report = formatClusterReport(cluster);
+    return res.json(report);
   }
 
-  const report = formatReport(post, analysis, safeBrowsing);
-  res.json(report);
+  if (post && analysis) {
+    const report = formatSinglePostReport(post, analysis, safeBrowsing);
+    return res.json(report);
+  }
+
+  return res.status(400).json({
+    error: "Invalid request. Provide either { cluster: {...} } or { post: {...}, analysis: {...} }",
+  });
 });
 
 export default router;

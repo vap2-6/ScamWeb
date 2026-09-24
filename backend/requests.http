@@ -1,0 +1,110 @@
+### 1. Health Check
+GET http://localhost:3001/api/health
+
+### 2. Analyze Single Post
+POST http://localhost:3001/api/analyze
+Content-Type: application/json
+
+{
+  "id": "sample-ad-01",
+  "caption": "Earn 100% daily profit! Invest ₹5000 and get guaranteed ₹50,000 back in 24 hours. DM on Telegram https://t.me/quick_returns_forex or pay via UPI to fastprofit@okaxis",
+  "ocrText": "GOVERNMENT APPROVED 100% PROFIT GUARANTEED. TELEGRAM: https://t.me/quick_returns_forex",
+  "source_url": "https://instagram.com/p/sample1"
+}
+
+### 3. Cluster Posts (Union-Find Syndicate Matching)
+POST http://localhost:3001/api/cluster
+Content-Type: application/json
+
+{
+  "posts": [
+    {
+      "id": "post-01",
+      "source_url": "https://instagram.com/p/ad1",
+      "caption": "Forex signals. Pay fastprofit@okaxis or visit https://t.me/quick_returns_forex",
+      "ocrText": "GUARANTEED RETURNS",
+      "analysis": {
+        "category": "SCAM_FINANCIAL",
+        "risk_score": 95,
+        "red_flags": ["Guaranteed profits", "Unregistered investment"],
+        "extracted_links": ["https://t.me/quick_returns_forex"],
+        "extracted_payment_info": ["fastprofit@okaxis"],
+        "reasoning": "Unrealistic promises with upfront fee"
+      }
+    },
+    {
+      "id": "post-02",
+      "source_url": "https://instagram.com/p/ad2",
+      "caption": "Part time online work! Earn ₹5000/day. Registration fee to fastprofit@okaxis",
+      "ocrText": "WORK FROM HOME",
+      "analysis": {
+        "category": "SCAM_GENERIC",
+        "risk_score": 85,
+        "red_flags": ["Dubious job offer"],
+        "extracted_links": ["https://t.me/quick_returns_forex"],
+        "extracted_payment_info": ["fastprofit@okaxis"],
+        "reasoning": "Upfront payment required for task scam"
+      }
+    },
+    {
+      "id": "post-03",
+      "source_url": "https://instagram.com/p/ad3",
+      "caption": "Replica 7A Rolex watches. DM on WhatsApp https://wa.me/919876543210",
+      "ocrText": "FIRST COPY WATCHES",
+      "analysis": {
+        "category": "COUNTERFEIT",
+        "risk_score": 80,
+        "red_flags": ["Counterfeit merchandise"],
+        "extracted_links": ["https://wa.me/919876543210"],
+        "extracted_payment_info": ["replica_luxury@paytm"],
+        "reasoning": "Selling replica luxury watches"
+      }
+    }
+  ]
+}
+
+### 4. Generate Syndicate Dossier Report
+POST http://localhost:3001/api/reports
+Content-Type: application/json
+
+{
+  "cluster": {
+    "clusterId": "cluster-telegram-quick-returns-forex",
+    "sharedIdentifier": {
+      "type": "telegram",
+      "value": "@quick_returns_forex",
+      "sharedAcrossCount": 2
+    },
+    "combinedRiskScore": 100,
+    "posts": [
+      {
+        "id": "post-01",
+        "source_url": "https://instagram.com/p/ad1",
+        "caption": "Forex signals. Pay fastprofit@okaxis",
+        "ocrText": "100% PROFIT",
+        "analysis": {
+          "category": "SCAM_FINANCIAL",
+          "risk_score": 95,
+          "red_flags": ["Guaranteed profits"],
+          "extracted_links": ["https://t.me/quick_returns_forex"],
+          "extracted_payment_info": ["fastprofit@okaxis"],
+          "reasoning": "Unrealistic promises"
+        }
+      },
+      {
+        "id": "post-02",
+        "source_url": "https://instagram.com/p/ad2",
+        "caption": "Work from home! Registration fee to fastprofit@okaxis",
+        "ocrText": "EARN DAILY",
+        "analysis": {
+          "category": "SCAM_GENERIC",
+          "risk_score": 85,
+          "red_flags": ["Upfront fee"],
+          "extracted_links": ["https://t.me/quick_returns_forex"],
+          "extracted_payment_info": ["fastprofit@okaxis"],
+          "reasoning": "Upfront fee for task scam"
+        }
+      }
+    ]
+  }
+}

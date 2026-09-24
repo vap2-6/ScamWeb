@@ -1,8 +1,9 @@
 # Dependencies
 node_modules/
 **/node_modules/
-
-# Environment variables & API keys
+.postman/
+postman/
+Scam & Illegal Ad Detector API/
 .env
 .env.*
 !.env.example

@@ -1,6 +1,5 @@
-// Calls Gemini's free-tier API to classify a post as scam/illegal-goods/legit.
-// Swap the fetch URL + auth if you'd rather use the Claude API — the prompt
-// and response contract stay the same either way.
+// Calls Gemini's API to classify a post as scam/illegal-goods/legit,
+// with a robust heuristic fallback if the API key is invalid or rate-limited.
 
 const SYSTEM_PROMPT = `You are a content safety classifier for detecting scam advertisements
 and illegal product sales on social media. You will be given a post's
@@ -32,51 +31,131 @@ Constraints:
 Output format:
 {"category":"...","risk_score":0,"red_flags":[],"extracted_links":[],"extracted_payment_info":[],"reasoning":"..."}`;
 
-export async function classifyPost({ caption = "", ocrText = "" }) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY not set in .env");
+function heuristicFallback(text = "") {
+  const lower = text.toLowerCase();
+  const red_flags = [];
+  let category = "LEGITIMATE";
+  let risk_score = 15;
+  let reasoning = "No obvious fraudulent patterns detected.";
 
-  const userContent = `Caption: ${caption}\nOCR extracted text: ${ocrText}`;
-
-  const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: userContent }] }],
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json",
-        },
-      }),
-    }
-  );
-
-  if (!resp.ok) {
-    const errText = await resp.text();
-    throw new Error(`Gemini API error ${resp.status}: ${errText}`);
+  // Financial scam heuristics
+  if (
+    lower.includes("guaranteed return") ||
+    lower.includes("daily profit") ||
+    lower.includes("double your money") ||
+    lower.includes("100% profit") ||
+    lower.includes("trading signals") ||
+    lower.includes("earn money daily") ||
+    lower.includes("investment plan")
+  ) {
+    category = "SCAM_FINANCIAL";
+    risk_score = 90;
+    red_flags.push("Promises unrealistic guaranteed financial returns", "High-risk unregulated investment scheme");
+    reasoning = "Post advertises guaranteed financial profits and unregulated investment opportunities.";
+  } else if (
+    lower.includes("lottery") ||
+    lower.includes("won ₹") ||
+    lower.includes("claim prize") ||
+    lower.includes("part-time job earn") ||
+    lower.includes("free recharge")
+  ) {
+    category = "SCAM_GENERIC";
+    risk_score = 85;
+    red_flags.push("Suspicious reward or unverified job offer", "Urgent call to action");
+    reasoning = "Unsolicited giveaway or dubious work-from-home scheme.";
+  } else if (
+    lower.includes("first copy") ||
+    lower.includes("7a quality") ||
+    lower.includes("master replica") ||
+    lower.includes("clone iphone")
+  ) {
+    category = "COUNTERFEIT";
+    risk_score = 80;
+    red_flags.push("Counterfeit/replica merchandise offered as original", "Unofficial sales channel");
+    reasoning = "Post explicitly advertises replica or counterfeit branded products.";
+  } else if (
+    lower.includes("fake notes") ||
+    lower.includes("counterfeit currency") ||
+    lower.includes("unlicensed pills")
+  ) {
+    category = "ILLEGAL_GOODS";
+    risk_score = 98;
+    red_flags.push("Sale of contraband or illicit goods", "Criminal solicitation");
+    reasoning = "Direct solicitation of illegal or contraband goods.";
   }
 
-  const data = await resp.json();
-  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+  if (lower.includes("t.me/") || lower.includes("telegram")) {
+    red_flags.push("Off-platform diversion to Telegram");
+    risk_score = Math.min(100, risk_score + 10);
+  }
 
-  let parsed;
-  try {
-    parsed = JSON.parse(rawText);
-  } catch {
-    // Model occasionally wraps in fences despite instructions — strip and retry
-    const cleaned = rawText.replace(/```json|```/g, "").trim();
-    parsed = JSON.parse(cleaned);
+  if (lower.includes("dm for details") || lower.includes("whatsapp")) {
+    red_flags.push("Directs to private chat for transaction");
   }
 
   return {
-    category: parsed.category ?? "UNKNOWN",
-    risk_score: parsed.risk_score ?? 0,
-    red_flags: parsed.red_flags ?? [],
-    extracted_links: parsed.extracted_links ?? [],
-    extracted_payment_info: parsed.extracted_payment_info ?? [],
-    reasoning: parsed.reasoning ?? "",
+    category,
+    risk_score,
+    red_flags,
+    extracted_links: [],
+    extracted_payment_info: [],
+    reasoning: `${reasoning} (heuristic analysis)`,
   };
+}
+
+export async function classifyPost({ caption = "", ocrText = "" }) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const userContent = `Caption: ${caption}\nOCR extracted text: ${ocrText}`;
+
+  if (!apiKey) {
+    console.warn("GEMINI_API_KEY missing, using heuristic classifier.");
+    return heuristicFallback(userContent);
+  }
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: userContent }] }],
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json",
+          },
+        }),
+      }
+    );
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      console.warn(`Gemini API returned ${resp.status}: ${errText}. Falling back to heuristic classifier.`);
+      return heuristicFallback(userContent);
+    }
+
+    const data = await resp.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch {
+      const cleaned = rawText.replace(/```json|```/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    }
+
+    return {
+      category: parsed.category ?? "UNKNOWN",
+      risk_score: parsed.risk_score ?? 0,
+      red_flags: parsed.red_flags ?? [],
+      extracted_links: parsed.extracted_links ?? [],
+      extracted_payment_info: parsed.extracted_payment_info ?? [],
+      reasoning: parsed.reasoning ?? "",
+    };
+  } catch (error) {
+    console.warn("Gemini call failed with error:", error.message, "- falling back to heuristic analysis.");
+    return heuristicFallback(userContent);
+  }
 }

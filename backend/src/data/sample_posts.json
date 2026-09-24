@@ -1,18 +1,42 @@
 [
   {
     "id": "sample-001",
-    "source_url": "",
-    "caption": "REPLACE ME: paste a real caption you collected here",
-    "ocr_text": "REPLACE ME: paste OCR'd text from the ad image here",
-    "image_url": "",
-    "collected_at": "2026-09-22T00:00:00Z"
+    "source_url": "https://instagram.com/p/C9xForexScam1",
+    "caption": "🔥 Earn 100% daily profit! Invest ₹5,000 and get guaranteed ₹50,000 back in just 24 hours. No market risk. Join our exclusive group: https://t.me/quick_returns_forex or transfer via UPI to fastprofit@okaxis",
+    "ocr_text": "GOVERNMENT APPROVED TRADING PLATFORM. GUARANTEED 10X RETURNS IN 24 HOURS. JOIN TELEGRAM: https://t.me/quick_returns_forex",
+    "image_url": "https://picsum.photos/400/400?random=1",
+    "collected_at": "2026-09-24T10:00:00Z"
   },
   {
     "id": "sample-002",
-    "source_url": "",
-    "caption": "REPLACE ME",
-    "ocr_text": "REPLACE ME",
-    "image_url": "",
-    "collected_at": "2026-09-22T00:00:00Z"
+    "source_url": "https://instagram.com/p/C9xWorkScam2",
+    "caption": "Simple online part-time job from home! Like videos and earn ₹3,000 to ₹8,000 daily. Immediate payment. DM on Telegram https://t.me/quick_returns_forex to start now. Registration fee ₹500 to fastprofit@okaxis",
+    "ocr_text": "WORK FROM MOBILE EARN ₹5000 DAILY. CONTACT https://t.me/quick_returns_forex NOW",
+    "image_url": "https://picsum.photos/400/400?random=2",
+    "collected_at": "2026-09-24T10:15:00Z"
+  },
+  {
+    "id": "sample-003",
+    "source_url": "https://instagram.com/p/C9xCryptoSignals3",
+    "caption": "Accurate 99.8% crypto signals. Turn your ₹10k into ₹2 Lakhs in 1 week. Pay subscription to fastprofit@okaxis and send screenshot.",
+    "ocr_text": "CRYPTO VIP SIGNALS ACCESS. DAILY PROFIT GUARANTEED.",
+    "image_url": "https://picsum.photos/400/400?random=3",
+    "collected_at": "2026-09-24T10:30:00Z"
+  },
+  {
+    "id": "sample-004",
+    "source_url": "https://instagram.com/p/C9xReplicaWatch4",
+    "caption": "First copy 7A quality master replica luxury Rolex Submariner watches. Cash on delivery available. DM on WhatsApp https://wa.me/919876543210 or UPI deposit to replica_luxury@paytm",
+    "ocr_text": "ORIGINAL FIRST COPY LUXURY WATCHES 90% OFF RETAIL. WHATSAPP 9876543210",
+    "image_url": "https://picsum.photos/400/400?random=4",
+    "collected_at": "2026-09-24T11:00:00Z"
+  },
+  {
+    "id": "sample-005",
+    "source_url": "https://instagram.com/p/C9xUnlicensedPharma5",
+    "caption": "Unregulated stimulants and sleeping pills delivered discreetly with no prescription required. Contact secret channel: https://t.me/rx_secret_delivery",
+    "ocr_text": "NO PRESCRIPTION NEEDED. 100% DISCREET PACKAGING. TELEGRAM: https://t.me/rx_secret_delivery",
+    "image_url": "https://picsum.photos/400/400?random=5",
+    "collected_at": "2026-09-24T11:30:00Z"
   }
 ]
