@@ -1,32 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Scam Ad Detector</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScamWeb — Untangling the scam web</title>
+  
+  <!-- Forensics Typography: Space Grotesk (Grotesque UI) + JetBrains Mono (Technical/Forensic Data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Icon-only Favicon in Exact Signal Teal from Logo -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  
+  <!-- Client-side OCR via Tesseract.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  
+  <style>
+    /* Custom subtle glow & backdrop blur effects */
+    .glass-card {
+      background: rgba(18, 24, 38, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-cyan:hover {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+    }
+    .glow-teal {
+      box-shadow: 0 0 15px rgba(20, 184, 166, 0.25);
+    }
+  </style>
+
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <header>
-    <h1>Scam / illegal-sale ad detector</h1>
-    <p class="subtitle">Evidence compilation dashboard</p>
-  </header>
+<body class="bg-[#0b0f17] text-slate-200 font-sans min-h-screen flex antialiased selection:bg-cyan-500 selection:text-black">
+  <div class="app-layout flex min-h-screen w-full">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar w-64 bg-[#111622]/80 border-r border-slate-800/80 flex flex-col justify-between p-4 min-h-screen sticky top-0 z-40" id="sidebar">
+      <div>
+        <div class="sidebar-header flex items-center">
+          <a href="#scanboard" class="logo-link flex items-center w-full text-decoration-none" title="ScamWeb">
+            <img src="logo-dark.png" alt="ScamWeb" class="sidebar-logo sidebar-logo-dark" width="204" height="54" />
+            <img src="logo-light.png" alt="ScamWeb" class="sidebar-logo sidebar-logo-light" width="204" height="54" />
+          </a>
+        </div>
 
-  <main>
-    <section id="input-panel">
-      <h2>Add a post</h2>
-      <textarea id="caption" placeholder="Caption text"></textarea>
-      <textarea id="ocrText" placeholder="OCR'd text from image (optional)"></textarea>
-      <input id="sourceUrl" placeholder="Source post URL (optional)" />
-      <button id="analyzeBtn">Analyze</button>
-      <p id="status"></p>
-    </section>
+        <!-- Navigation Links -->
+        <nav class="sidebar-nav space-y-1.5">
+          <button class="nav-item active flex items-center space-x-3 w-full px-3 py-2.5 rounded-xl font-medium transition-all" data-view="scanboard" id="nav-scanboard">
+            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+            <span>ScanBoard</span>
+          </button>
+          
+          <button class="nav-item flex items-center space-x-3 w-full px-3 py-2.5 rounded-xl font-medium transition-all" data-view="operations" id="nav-operations">
+            <i data-lucide="scissors" class="w-5 h-5"></i>
+            <span>Scam operations</span>
+          </button>
 
-    <section id="results-panel">
-      <h2>Results</h2>
-      <div id="results"></div>
-    </section>
-  </main>
+          <button class="nav-item flex items-center space-x-3 w-full px-3 py-2.5 rounded-xl font-medium transition-all" data-view="reports" id="nav-reports">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+            <span>Reports</span>
+          </button>
+        </nav>
+      </div>
 
+      <!-- Bottom Sidebar Widget (Standard Reference) -->
+      <div class="sidebar-footer">
+        <div class="casefile-meta glass-card rounded-xl p-3.5 border border-slate-800">
+          <span class="meta-label text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">
+            standard reference
+          </span>
+          <h4 class="meta-val text-xs font-semibold text-slate-200 mb-2">
+            NCRP / I4C portal dossier
+          </h4>
+          <div class="meta-indicator flex items-center space-x-2 text-xs text-emerald-400 font-medium">
+            <span class="pulse-clean relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>Verified intake protocol</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-wrapper flex-1 flex flex-col min-w-0">
+      <!-- Header Bar (Compact) -->
+      <header class="topbar flex items-center justify-between px-6 py-3.5 border-b border-slate-800/60 mb-4">
+        <div class="topbar-left">
+          <h1 class="page-title text-xl font-bold text-white tracking-tight" id="pageTitle">Upload & analyze</h1>
+          <p class="page-subtitle text-xs text-slate-400 mt-0.5" id="pageSubtitle">Evidence processing and syndicate correlation engine</p>
+        </div>
+
+        <!-- Action Buttons Top Right -->
+        <div class="topbar-right flex items-center space-x-3">
+          <!-- Theme Toggle Button (Icon Only) -->
+          <button class="btn btn-secondary btn-sm flex items-center justify-center w-9 h-9 p-0 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-slate-700 transition-all glow-cyan" id="themeToggleBtn" aria-label="Toggle light/dark theme" title="Toggle theme"></button>
+
+          <button class="btn btn-secondary btn-sm flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 text-xs font-medium border border-slate-700 transition-all glow-cyan" id="loadDemoBtn" title="Load sample scam ad for testing">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Load sample scam</span>
+          </button>
+
+          <div class="shield-badge flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs font-medium" title="AI classifier and Safe Browsing telemetry operational">
+            <span class="status-dot h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="shield-label text-xs">Live AI shield</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content Container -->
+      <main class="main-content flex-1 px-6 pb-6 overflow-y-auto">
+        <!-- SCANBOARD VIEW (active/default) -->
+        <section class="view-panel active" id="view-scanboard">
+          
+          <!-- SCAN INPUT PANEL (Compact Glass Card) -->
+          <div class="case-card scan-input-card glass-card rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-2xl relative overflow-hidden mb-4" id="scanInputCard">
+            <!-- Glow decoration behind container -->
+            <div class="absolute -top-24 -right-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- STEP 01: File Drop Area (Compact Horizontal Layout) -->
+            <div class="section-block mb-3.5">
+              <div class="section-label flex items-center space-x-2 mb-1.5">
+                <span class="evidence-idx text-xs font-mono font-bold text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/50">01</span>
+                <h3 class="text-xs font-semibold text-slate-200">Evidence screenshot upload</h3>
+                <span class="tech-tag text-[10px] font-mono text-slate-400 bg-slate-800/60 px-1.5 py-0.5 rounded border border-slate-700">Client-side OCR</span>
+              </div>
+
+              <!-- Drag & Drop Box -->
+              <div class="drop-zone border-2 border-dashed border-slate-700/80 hover:border-cyan-500/50 rounded-xl py-3 px-4 flex items-center justify-between bg-slate-900/30 hover:bg-slate-900/50 transition-all group cursor-pointer" id="dropZone">
+                <input type="file" id="fileInput" multiple accept="image/png,image/jpeg,image/jpg,image/webp" class="file-input-hidden hidden" />
+                <div class="drop-zone-content flex items-center space-x-3 min-w-0">
+                  <div class="p-2 rounded-lg bg-slate-800/80 text-slate-400 group-hover:text-cyan-400 group-hover:scale-105 transition-all drop-icon shrink-0">
+                    <i data-lucide="image" class="w-5 h-5"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="drop-headline text-xs font-semibold text-slate-200 truncate">Drop scam ad screenshots here, or browse</p>
+                    <p class="drop-hint text-[11px] text-slate-400 truncate">PNG, JPG, JPEG, WEBP • Multi-select supported for batch processing</p>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary btn-sm px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-600 transition-all shrink-0 ml-3" id="browseBtn">
+                  Choose files
+                </button>
+              </div>
+
+              <!-- Thumbnail Previews Container -->
+              <div class="thumbnails-grid grid grid-cols-2 md:grid-cols-4 gap-2 mt-2" id="thumbnailsGrid" style="display: none;"></div>
+            </div>
+
+            <!-- STEP 02: Text Area Input (Compact) -->
+            <div class="section-block mb-3.5">
+              <div class="section-label flex items-center space-x-2 mb-1.5">
+                <span class="evidence-idx text-xs font-mono font-bold text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/50">02</span>
+                <label for="textInput" class="text-xs font-semibold text-slate-200">Suspicious URL, caption, or message text</label>
+              </div>
+
+              <div class="textarea-wrapper relative">
+                <textarea 
+                  id="textInput" 
+                  maxlength="5000"
+                  rows="2" 
+                  placeholder="Paste a suspicious link, ad caption, or message here..."
+                  class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl py-2 px-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/50 transition-all resize-none"
+                  style="min-height: 58px; height: 58px;"
+                ></textarea>
+                <div class="char-counter absolute bottom-2 right-3 text-[10px] font-mono text-slate-500">
+                  <span id="charCount">0</span> / 5000
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Status & Analyze Button -->
+            <div class="action-footer flex items-center justify-between pt-1">
+              <p class="footer-hint text-xs text-slate-400 flex items-center space-x-1.5" id="validationHint">
+                <span class="hint-symbol text-cyan-400">•</span>
+                <span>Enter suspicious text or attach at least one screenshot to proceed</span>
+              </p>
+
+              <button class="btn btn-primary px-5 py-2 rounded-xl bg-slate-800/60 text-slate-500 text-xs font-semibold cursor-not-allowed border border-slate-800 transition-all" id="analyzeBtn" disabled>
+                <span>Analyze</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4. ANALYZING STATE -->
+          <div class="case-card analyzing-card glass-card rounded-2xl p-8 border border-cyan-500/30 shadow-2xl relative overflow-hidden mb-8" id="analyzingCard" style="display: none;">
+            <div class="analyzing-visual flex justify-center mb-4">
+              <div class="reticle"></div>
+              <div class="analyzing-dot"></div>
+            </div>
+            <div class="analyzing-content text-center">
+              <div class="analyzing-heading text-base font-bold text-white mb-1">Forensic analysis in progress</div>
+              <div class="analyzing-status text-sm text-cyan-400 font-mono mb-1" id="analyzingStatus">Scanning for scam patterns...</div>
+              <div class="analyzing-sub text-xs text-slate-400">Cross-checking optical transcripts, registry age, and financial identifiers.</div>
+            </div>
+          </div>
+
+          <!-- RESULTS CONTAINER -->
+          <div class="results-wrapper space-y-6" id="resultsWrapper" style="display: none;">
+            <!-- 5. RESULTS — RISK SCORES -->
+            <div class="results-header flex items-center justify-between border-b border-slate-800 pb-3">
+              <div class="results-title-group flex items-center space-x-3">
+                <h2 class="section-heading text-lg font-bold text-white">Analyzed evidence records</h2>
+                <span class="counter-badge text-xs font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/50" id="itemCountBadge">0 records</span>
+              </div>
+              <button class="btn btn-secondary btn-sm px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 text-xs font-medium border border-slate-700 transition-all" id="resetScanBtn">
+                <span>New intake</span>
+              </button>
+            </div>
+
+            <!-- List of Analyzed Item Cards -->
+            <div class="analyzed-cards-list space-y-4" id="analyzedCardsList"></div>
+
+            <!-- 6. CONNECTION / CLUSTER RESULT (INTERACTIVE FLOWCHART) -->
+            <div class="cluster-section pt-4" id="clusterSection">
+              <div class="section-title-row flex items-center justify-between flex-wrap gap-2 mb-3">
+                <div class="flex items-center space-x-2">
+                  <h3 class="subsection-heading text-base font-bold text-white">Syndicate connection analysis</h3>
+                  <span class="tech-tag text-[10px] font-mono text-cyan-400 bg-cyan-950/70 border border-cyan-800/40 px-2 py-0.5 rounded">Interactive flowchart</span>
+                </div>
+
+                <!-- Flowchart Header Controls -->
+                <div class="flowchart-header-controls flex items-center space-x-2" id="flowchartHeaderControls">
+                  <!-- Dataset Toggle -->
+                  <div class="flowchart-mode-pill flex items-center p-0.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-xs">
+                    <button type="button" class="mode-btn active px-2.5 py-1 rounded text-xs font-medium transition-all" id="btnGraphDemo">Demo syndicate</button>
+                    <button type="button" class="mode-btn px-2.5 py-1 rounded text-xs font-medium transition-all text-slate-400 hover:text-slate-200" id="btnGraphLive">Live intake</button>
+                  </div>
+
+                  <!-- Zoom Controls -->
+                  <div class="flowchart-zoom-group flex items-center space-x-1">
+                    <button type="button" class="btn btn-secondary btn-sm w-7 h-7 p-0 flex items-center justify-center rounded-lg text-xs" id="btnGraphZoomOut" title="Zoom out">−</button>
+                    <span class="zoom-indicator text-[11px] font-mono text-slate-400 px-1" id="graphZoomLevel">100%</span>
+                    <button type="button" class="btn btn-secondary btn-sm w-7 h-7 p-0 flex items-center justify-center rounded-lg text-xs" id="btnGraphZoomIn" title="Zoom in">+</button>
+                    <button type="button" class="btn btn-secondary btn-sm w-7 h-7 p-0 flex items-center justify-center rounded-lg text-xs" id="btnGraphReset" title="Reset view">⟲</button>
+                  </div>
+                </div>
+              </div>
+              <div id="clusterContainer"></div>
+            </div>
+
+            <!-- 7. REPORT AREA (bottom section) -->
+            <div class="report-section pt-4" id="reportSection">
+              <div class="section-title-row mb-3">
+                <h3 class="subsection-heading text-base font-bold text-white">Law enforcement report</h3>
+              </div>
+              <div id="reportContainer"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCAM OPERATIONS VIEW -->
+        <section class="view-panel" id="view-operations">
+          <div class="view-header mb-6">
+            <h2 class="view-heading text-2xl font-bold text-white tracking-tight">Identified scam operations</h2>
+            <p class="view-desc text-sm text-slate-400 mt-1">Correlated operations linked through shared UPI rails, communication handles, or web domains.</p>
+          </div>
+          <div class="operations-grid" id="operationsGrid">
+            <div class="case-card empty-state-card glass-card rounded-2xl p-10 border border-slate-800 text-center flex flex-col items-center">
+              <div class="p-4 rounded-full bg-slate-800/60 text-slate-400 mb-3">
+                <i data-lucide="scissors" class="w-8 h-8"></i>
+              </div>
+              <h3 class="text-base font-semibold text-slate-200 mb-1">No active syndicate clusters in current session</h3>
+              <p class="text-xs text-slate-400 max-w-md mb-4">Cross-referencing occurs automatically when multiple posts share payment handles or URLs.</p>
+              <button class="btn btn-secondary btn-sm px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-all" onclick="document.getElementById('nav-scanboard').click()">Return to ScanBoard</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- REPORTS VIEW -->
+        <section class="view-panel" id="view-reports">
+          <div class="view-header mb-6">
+            <h2 class="view-heading text-2xl font-bold text-white tracking-tight">Compiled case files</h2>
+            <p class="view-desc text-sm text-slate-400 mt-1">Archived dossiers formatted for submission to cybercrime.gov.in / I4C.</p>
+          </div>
+          <div class="reports-archive-list space-y-4" id="reportsArchiveList">
+            <div class="case-card empty-state-card glass-card rounded-2xl p-10 border border-slate-800 text-center flex flex-col items-center">
+              <div class="p-4 rounded-full bg-slate-800/60 text-slate-400 mb-3">
+                <i data-lucide="file-text" class="w-8 h-8"></i>
+              </div>
+              <h3 class="text-base font-semibold text-slate-200 mb-1">No case files generated yet</h3>
+              <p class="text-xs text-slate-400 max-w-md mb-4">Analyze flagged scam ads on the ScanBoard and generate an official report to compile an evidence file.</p>
+              <button class="btn btn-secondary btn-sm px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-all" onclick="document.getElementById('nav-scanboard').click()">Return to ScanBoard</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Script to render Lucide icons -->
+  <script>
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  </script>
+
+  <!-- Application Logic -->
   <script src="app.js"></script>
 </body>
 </html>

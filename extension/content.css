@@ -1,0 +1,255 @@
+/* ==========================================================================
+   SCAMWEB AUTOFILL — INJECTED STYLES FOR CYBERCRIME.GOV.IN
+   Strictly aligned with ScamWeb Forensics theme (#01E8BC, #070D19, #0E1626)
+   ========================================================================== */
+
+/* Top Warning & Notification Banner */
+#scamweb-autofill-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483647; /* Maximum z-index */
+  background: #070D19;
+  border-bottom: 2px solid #01E8BC;
+  color: #FFFFFF;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: scamwebSlideDown 0.3s ease-out;
+  padding: 10px 20px;
+}
+
+@keyframes scamwebSlideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.scamweb-banner-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.scamweb-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.scamweb-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(1, 232, 188, 0.12);
+  border: 1px solid #01E8BC;
+  color: #01E8BC;
+  padding: 4px 9px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: monospace;
+}
+
+.scamweb-banner-badge::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #01E8BC;
+  box-shadow: 0 0 6px #01E8BC;
+}
+
+.scamweb-banner-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.scamweb-banner-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.3;
+}
+
+.scamweb-banner-subtitle {
+  font-size: 11.5px;
+  color: #94A3B8;
+  line-height: 1.3;
+}
+
+.scamweb-banner-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.scamweb-stat-pill {
+  background: #0E1626;
+  border: 1px solid #1E293B;
+  padding: 3px 8px;
+  border-radius: 3px;
+  color: #E2E8F0;
+}
+
+.scamweb-stat-pill strong {
+  color: #01E8BC;
+}
+
+.scamweb-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scamweb-banner-btn {
+  background: #0E1626;
+  border: 1px solid #1E293B;
+  color: #FFFFFF;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.scamweb-banner-btn:hover {
+  background: #1E293B;
+  border-color: #01E8BC;
+  color: #01E8BC;
+}
+
+.scamweb-banner-btn.primary {
+  background: #01E8BC;
+  border-color: #01E8BC;
+  color: #060C18;
+  font-weight: 700;
+}
+
+.scamweb-banner-btn.primary:hover {
+  background: #00C8A0;
+}
+
+.scamweb-banner-close {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+.scamweb-banner-close:hover {
+  color: #FFFFFF;
+  background: #1E293B;
+}
+
+/* Subtle colored outline for autofilled fields */
+.scamweb-autofilled {
+  outline: 2px solid #01E8BC !important;
+  outline-offset: 1px !important;
+  box-shadow: 0 0 0 3px rgba(1, 232, 188, 0.25) !important;
+  transition: outline 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Field notification chip */
+.scamweb-field-badge {
+  display: inline-block;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: #01E8BC;
+  background: #070D19;
+  border: 1px solid #01E8BC;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  letter-spacing: 0.3px;
+}
+
+/* Ensure cybercrime.gov.in body has room for fixed banner */
+body.scamweb-banner-active {
+  padding-top: 55px !important;
+}
+
+/* Modal for manual payload pasting */
+#scamweb-payload-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2147483647;
+  background: rgba(4, 8, 16, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.scamweb-modal-box {
+  background: #0E1626;
+  border: 1px solid #01E8BC;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  width: 90%;
+  max-width: 580px;
+  padding: 24px;
+  color: #FFFFFF;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.scamweb-modal-box h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #FFFFFF;
+}
+
+.scamweb-modal-box p {
+  font-size: 12.5px;
+  color: #94A3B8;
+  margin-bottom: 14px;
+}
+
+.scamweb-modal-box textarea {
+  width: 100%;
+  height: 130px;
+  background: #070D19;
+  border: 1px solid #1E293B;
+  color: #E2E8F0;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+  border-radius: 3px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.scamweb-modal-box textarea:focus {
+  outline: 2px solid #01E8BC;
+}
+
+.scamweb-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}

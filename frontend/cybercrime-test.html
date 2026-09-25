@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>National Cyber Crime Reporting Portal (Test Environment)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    .gov-header {
+      background: #002654;
+      color: #fff;
+      padding: 16px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .gov-header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .form-section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #002654;
+      border-bottom: 2px solid #002654;
+      padding-bottom: 6px;
+      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .req { color: red; }
+    input[type="text"], input[type="date"], select, textarea {
+      padding: 8px 10px;
+      border: 1px solid #aaa;
+      border-radius: 3px;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    textarea { height: 120px; resize: vertical; }
+    .row {
+      display: flex;
+      gap: 16px;
+    }
+    .col { flex: 1; }
+    .btn-submit {
+      background: #002654;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    .test-note {
+      background: #eef4fc;
+      border-left: 4px solid #002654;
+      padding: 10px 15px;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="gov-header">
+    <div>
+      <h1>National Cyber Crime Reporting Portal</h1>
+      <small>Ministry of Home Affairs, Government of India (Local Test Mock)</small>
+    </div>
+    <div><strong>Incident Reporting Form</strong></div>
+  </div>
+
+  <div class="container">
+    <div class="test-note">
+      <strong>Extension Test Harness:</strong> This page replicates the exact ASP.NET WebForms field IDs, names, and labels of <code>cybercrime.gov.in</code> for testing the <strong>ScamWeb Autofill</strong> Chrome Extension locally.
+    </div>
+
+    <form id="aspnetForm" onsubmit="event.preventDefault(); alert('Manual submission triggered by user.');">
+      <div class="form-section-title">1. Category & Sub-Category</div>
+      <div class="row">
+        <div class="col form-group">
+          <label for="ctl00_ContentPlaceHolder1_ddlCategory">Category of Complaint <span class="req">*</span></label>
+          <select id="ctl00_ContentPlaceHolder1_ddlCategory" name="ctl00$ContentPlaceHolder1$ddlCategory">
+            <option value="">-- Select Category --</option>
+            <option value="1">Online and Social Media Related Crime</option>
+            <option value="2">Online Financial Fraud</option>
+            <option value="3">Hacking / Unauthorized Access</option>
+            <option value="4">Cryptocurrency Crime</option>
+            <option value="5">Any Other Cyber Crime</option>
+          </select>
+        </div>
+        <div class="col form-group">
+          <label for="ctl00_ContentPlaceHolder1_ddlSubCategory">Sub-Category of Complaint <span class="req">*</span></label>
+          <select id="ctl00_ContentPlaceHolder1_ddlSubCategory" name="ctl00$ContentPlaceHolder1$ddlSubCategory">
+            <option value="">-- Select Sub-Category --</option>
+            <option value="101">UPI Fraud</option>
+            <option value="102">Internet Banking Fraud</option>
+            <option value="103">Social Media Related Crime</option>
+            <option value="104">Online Job Fraud</option>
+            <option value="105">Fake / Impersonating Profile</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section-title">2. Incident Details & Timestamp</div>
+      <div class="row">
+        <div class="col form-group">
+          <label for="ctl00_ContentPlaceHolder1_txtIncidentDate">Date of Incident <span class="req">*</span></label>
+          <input type="text" id="ctl00_ContentPlaceHolder1_txtIncidentDate" name="ctl00$ContentPlaceHolder1$txtIncidentDate" placeholder="DD/MM/YYYY" />
+        </div>
+        <div class="col form-group">
+          <label for="ctl00_ContentPlaceHolder1_txtIncidentTime">Time of Incident</label>
+          <input type="text" id="ctl00_ContentPlaceHolder1_txtIncidentTime" name="ctl00$ContentPlaceHolder1$txtIncidentTime" placeholder="HH:MM" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="ctl00_ContentPlaceHolder1_txtIncidentDetails">Detailed Description of Incident (Min 200 chars) <span class="req">*</span></label>
+        <textarea id="ctl00_ContentPlaceHolder1_txtIncidentDetails" name="ctl00$ContentPlaceHolder1$txtIncidentDetails" placeholder="Provide detailed modus operandi, communication records, and loss details..."></textarea>
+      </div>
+
+      <div class="form-section-title">3. Suspect Information & Fraudulent Rails</div>
+      <div class="row">
+        <div class="col form-group">
+          <label for="ctl00_ContentPlaceHolder1_txtSuspectWebsite">Suspect Website / Social Media URL</label>
+          <input type="text" id="ctl00_ContentPlaceHolder1_txtSuspectWebsite" name="ctl00$ContentPlaceHolder1$txtSuspectWebsite" placeholder="e.g. https://t.me/... or phishing domain" />
+        </div>
+        <div class="col form-group">
+          <label for="ctl00_ContentPlaceHolder1_txtSuspectUPI">Suspect Payment Handle / UPI ID / Account</label>
+          <input type="text" id="ctl00_ContentPlaceHolder1_txtSuspectUPI" name="ctl00$ContentPlaceHolder1$txtSuspectUPI" placeholder="e.g. fastprofit@okaxis" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col form-group">
+          <label for="ctl00_ContentPlaceHolder1_txtTelegram">Suspect Telegram Handle / Channel</label>
+          <input type="text" id="ctl00_ContentPlaceHolder1_txtTelegram" name="ctl00$ContentPlaceHolder1$txtTelegram" placeholder="@channel_or_handle" />
+        </div>
+        <div class="col form-group">
+          <label for="ctl00_ContentPlaceHolder1_txtSuspectMobile">Suspect Mobile Number</label>
+          <input type="text" id="ctl00_ContentPlaceHolder1_txtSuspectMobile" name="ctl00$ContentPlaceHolder1$suspectnumber" placeholder="Mobile / WhatsApp number" />
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <input type="submit" value="Save & Preview Complaint" class="btn-submit" id="btnSubmitForm" />
+      </div>
+    </form>
+  </div>
+
+  <!-- Injected ScamWeb Autofill Content Script & Styles for local test simulation -->
+  <link rel="stylesheet" href="/extension/content.css" />
+  <script>
+    // Provide fallback payload for direct test browsing if localStorage is empty
+    if (!localStorage.getItem("scamweb_latest_payload")) {
+      localStorage.setItem("scamweb_latest_payload", JSON.stringify({
+        scamweb_payload: true,
+        report_id: "RPT-FOREX-INVESTMENT-FRAUD-101",
+        generated_at: new Date().toISOString(),
+        cluster_summary: {
+          category: "Online Financial Fraud",
+          combined_risk_score: 98
+        },
+        actionable_threat_infrastructure: {
+          payment_rails_to_freeze: ["fastprofit@okaxis", "replica_luxury@paytm"],
+          communication_channels: ["https://t.me/quick_returns_forex", "@quick_returns_forex"],
+          web_domains: ["https://quick-profit-portal.online"]
+        },
+        evidence: {
+          extracted_payment_info: ["fastprofit@okaxis"],
+          extracted_links: ["https://quick-profit-portal.online"],
+          extracted_phones: ["+91 98765 43210"]
+        }
+      }));
+    }
+  </script>
+  <script src="/extension/content.js"></script>
+</body>
+</html>

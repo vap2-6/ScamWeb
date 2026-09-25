@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "ScamWeb Autofill",
+  "version": "1.0.0",
+  "description": "Autofills cybercrime.gov.in complaint forms from ScamWeb forensic case files. Does NOT auto-submit.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ScamWeb Autofill"
+  },
+  "permissions": [
+    "storage",
+    "clipboardRead"
+  ],
+  "host_permissions": [
+    "*://*.cybercrime.gov.in/*",
+    "http://localhost:3001/*",
+    "http://127.0.0.1:3001/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.cybercrime.gov.in/*",
+        "http://localhost:3001/cybercrime-test.html",
+        "http://127.0.0.1:3001/cybercrime-test.html"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "http://localhost:3001/*",
+        "http://127.0.0.1:3001/*"
+      ],
+      "js": ["bridge.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

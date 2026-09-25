@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32" fill="none">
+  <!-- Outer Magnifying Glass Ring with Cutout -->
+  <path d="M 50 14 A 36 36 0 1 0 78 72" stroke="#01E8BC" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Magnifying Glass Handle -->
+  <line x1="72" y1="72" x2="88" y2="88" stroke="#01E8BC" stroke-width="9" stroke-linecap="round"/>
+  
+  <!-- Triangular Network Connector Lines -->
+  <line x1="38" y1="44" x2="62" y2="33" stroke="#01E8BC" stroke-width="5" stroke-linecap="round"/>
+  <line x1="38" y1="44" x2="49" y2="67" stroke="#01E8BC" stroke-width="5" stroke-linecap="round"/>
+  <line x1="62" y1="33" x2="49" y2="67" stroke="#01E8BC" stroke-width="5" stroke-linecap="round"/>
+  
+  <!-- 3 Network Nodes -->
+  <circle cx="62" cy="33" r="11" fill="#01E8BC"/>
+  <circle cx="38" cy="44" r="9" fill="#01E8BC"/>
+  <circle cx="49" cy="67" r="10" fill="#01E8BC"/>
+</svg>

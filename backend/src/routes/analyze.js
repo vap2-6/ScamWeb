@@ -25,7 +25,7 @@ router.post("/", async (req, res) => {
 
   try {
     // If caption and ocrText are missing, but an Instagram URL is provided,
-    // attempt live scraping via scraper.js
+    // attempt live scraping if enabled, otherwise use the URL directly as caption
     if (!caption && !ocrText && targetUrl) {
       if (process.env.ENABLE_LIVE_SCRAPING === "true") {
         try {
@@ -39,20 +39,23 @@ router.post("/", async (req, res) => {
           }
         } catch (scrapeErr) {
           console.warn(`Live scrape attempt for ${targetUrl} failed:`, scrapeErr.message);
-          return res.status(400).json({
-            error: `Failed to scrape Instagram post: ${scrapeErr.message}. Please enter caption manually.`,
-          });
+          caption = `Target URL: ${targetUrl}`;
         }
       } else {
-        return res.status(400).json({
-          error:
-            "caption or ocrText is required. Live scraping is currently disabled (set ENABLE_LIVE_SCRAPING=true).",
-        });
+        caption = `Target URL: ${targetUrl}`;
       }
     }
 
+    // Graceful fallback if caption and ocrText are still both empty
     if (!caption && !ocrText) {
-      return res.status(400).json({ error: "caption or ocrText is required" });
+      if (targetUrl) {
+        caption = `Target URL: ${targetUrl}`;
+      } else if (req.body.fileName || image_url) {
+        caption = `Evidence screenshot: ${req.body.fileName || "uploaded file"}`;
+        ocrText = "Visual evidence screenshot submitted for analysis.";
+      } else {
+        caption = "Evidence submitted for forensic review.";
+      }
     }
 
     // Classify content using Gemini LLM (with heuristic fallback)
