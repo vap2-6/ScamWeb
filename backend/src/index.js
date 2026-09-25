@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import analyzeRouter from "./routes/analyze.js";
 import clusterRouter from "./routes/cluster.js";
 import reportsRouter from "./routes/reports.js";
+import scrapeRouter from "./routes/scrape.js";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.get("/api/health", (req, res) => res.json({ ok: true }));
 app.use("/api/analyze", analyzeRouter);
 app.use("/api/cluster", clusterRouter);
 app.use("/api/reports", reportsRouter);
+app.use("/api/scrape", scrapeRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

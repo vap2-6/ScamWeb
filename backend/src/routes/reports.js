@@ -8,7 +8,7 @@ const router = Router();
 // 1) { cluster: { ... } } -> Generates a comprehensive Syndicate Intelligence Dossier
 // 2) { post: {...}, analysis: {...}, safeBrowsing: {...} } -> Generates a single incident report
 router.post("/", (req, res) => {
-  const { cluster, post, analysis, safeBrowsing } = req.body;
+  const { cluster, post, analysis, safeBrowsing, whois } = req.body;
 
   if (cluster) {
     const report = formatClusterReport(cluster);
@@ -16,7 +16,7 @@ router.post("/", (req, res) => {
   }
 
   if (post && analysis) {
-    const report = formatSinglePostReport(post, analysis, safeBrowsing);
+    const report = formatSinglePostReport(post, analysis, safeBrowsing, whois);
     return res.json(report);
   }
 

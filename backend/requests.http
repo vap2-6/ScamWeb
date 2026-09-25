@@ -1,13 +1,29 @@
 ### 1. Health Check
 GET http://localhost:3001/api/health
 
-### 2. Analyze Single Post
+### 2. Live Scrape Instagram Post via /api/scrape
+POST http://localhost:3001/api/scrape
+Content-Type: application/json
+
+{
+  "url": "https://instagram.com/p/C9xForexScam1"
+}
+
+### 3. Analyze Post (with Live Auto-Scrape + WHOIS + Safe Browsing)
+POST http://localhost:3001/api/analyze
+Content-Type: application/json
+
+{
+  "source_url": "https://instagram.com/p/C9xForexScam1"
+}
+
+### 4. Analyze Single Post with Manual Caption & OCR
 POST http://localhost:3001/api/analyze
 Content-Type: application/json
 
 {
   "id": "sample-ad-01",
-  "caption": "Earn 100% daily profit! Invest ₹5000 and get guaranteed ₹50,000 back in 24 hours. DM on Telegram https://t.me/quick_returns_forex or pay via UPI to fastprofit@okaxis",
+  "caption": "Earn 100% daily profit! Invest ₹5000 and get guaranteed ₹50,000 back in 24 hours. DM on Telegram https://t.me/quick_returns_forex or pay via UPI to fastprofit@okaxis. Check website: https://github.com",
   "ocrText": "GOVERNMENT APPROVED 100% PROFIT GUARANTEED. TELEGRAM: https://t.me/quick_returns_forex",
   "source_url": "https://instagram.com/p/sample1"
 }

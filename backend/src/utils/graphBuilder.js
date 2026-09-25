@@ -37,14 +37,24 @@ export function buildGraphFromAnalysis(post) {
     });
   });
 
+  const whoisDomains = post.whois?.domains || [];
+
   // Link/handle nodes & edges
   links.forEach((link) => {
     const linkNodeId = `link:${link.trim().toLowerCase()}`;
+    const matchedWhois = whoisDomains.find(
+      (d) => d.domain && link.toLowerCase().includes(d.domain.toLowerCase())
+    );
+
     if (!nodes.some((n) => n.id === linkNodeId)) {
       nodes.push({
         id: linkNodeId,
         type: "link",
         label: link,
+        domain_age_days: matchedWhois?.ageInDays ?? null,
+        is_newly_registered: matchedWhois?.isNewlyRegistered ?? false,
+        whois_risk: matchedWhois?.riskLevel ?? null,
+        whois_registrar: matchedWhois?.registrar ?? null,
       });
     }
     edges.push({

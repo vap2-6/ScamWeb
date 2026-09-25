@@ -42,6 +42,16 @@ export function formatClusterReport(cluster = {}) {
     ),
   ];
 
+  const newlyRegisteredDomains = [
+    ...new Set(
+      posts.flatMap((p) =>
+        (p.whois?.domains || [])
+          .filter((d) => d.checked && (d.isNewlyRegistered || d.isVeryYoung))
+          .map((d) => `${d.domain} (${d.ageInDays}d old via ${d.registrar || "Unknown"})`)
+      )
+    ),
+  ];
+
   const severity = combinedRiskScore >= 80 ? "CRITICAL" : combinedRiskScore >= 50 ? "HIGH" : "MEDIUM";
 
   return {
@@ -62,6 +72,7 @@ export function formatClusterReport(cluster = {}) {
       communication_channels: communicationChannels,
       web_domains: webDomains,
       google_safe_browsing_flagged: flaggedThreatUrls,
+      newly_registered_whois_domains: newlyRegisteredDomains,
     },
     evidence_chain: posts.map((p, idx) => ({
       index: idx + 1,
@@ -83,7 +94,10 @@ export function formatClusterReport(cluster = {}) {
         : "Monitor associated accounts for external links.",
       flaggedThreatUrls.length > 0
         ? `Issue rapid takedown notices for verified malicious URLs: ${flaggedThreatUrls.join(", ")}.`
-        : "Perform continuous Safe Browsing and WHOIS surveillance on domains.",
+        : "Perform continuous Safe Browsing and threat intelligence monitoring.",
+      newlyRegisteredDomains.length > 0
+        ? `File urgent domain registrar abuse requests & DNS sinkholing for newly registered infrastructure: ${newlyRegisteredDomains.join(", ")}.`
+        : "Maintain WHOIS/RDAP age surveillance on any newly discovered domain hostnames.",
     ],
     disclaimer:
       "This report was compiled by an automated AI pipeline for evidence " +
@@ -93,7 +107,7 @@ export function formatClusterReport(cluster = {}) {
   };
 }
 
-export function formatSinglePostReport(post, analysis, safeBrowsingResult) {
+export function formatSinglePostReport(post, analysis, safeBrowsingResult, whoisResult) {
   return {
     report_id: `RPT-${post.id}-${Date.now()}`,
     generated_at: new Date().toISOString(),
@@ -112,14 +126,25 @@ export function formatSinglePostReport(post, analysis, safeBrowsingResult) {
     evidence: {
       caption: post.caption,
       ocr_text: post.ocrText || post.ocr_text,
+      image_url: post.image_url || undefined,
       extracted_links: analysis?.extracted_links || [],
       extracted_payment_info: analysis?.extracted_payment_info || [],
-      threat_intel: safeBrowsingResult?.checked
-        ? {
-            provider: "Google Safe Browsing",
-            flagged_urls: safeBrowsingResult.flaggedUrls || [],
-          }
-        : { provider: "Google Safe Browsing", note: "not checked" },
+      threat_intel: {
+        safe_browsing: safeBrowsingResult?.checked
+          ? {
+              provider: "Google Safe Browsing",
+              flagged_urls: safeBrowsingResult.flaggedUrls || [],
+            }
+          : { provider: "Google Safe Browsing", note: "not checked" },
+        whois: whoisResult?.checked
+          ? {
+              provider: whoisResult.domains?.[0]?.provider || "WHOIS / RDAP Registry",
+              domains_analyzed: whoisResult.domains || [],
+              newly_registered_count: whoisResult.newlyRegisteredCount || 0,
+              summary: whoisResult.summary,
+            }
+          : { provider: "WHOIS / RDAP Registry", note: whoisResult?.note || "not checked" },
+      },
     },
     disclaimer:
       "This report was compiled by an automated system for evidence " +
