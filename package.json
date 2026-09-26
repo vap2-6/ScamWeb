@@ -1,0 +1,11 @@
+{
+  "name": "scam-detector",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node backend/src/index.js",
+    "dev": "node --watch backend/src/index.js",
+    "test": "node backend/test_pipeline.js"
+  }
+}

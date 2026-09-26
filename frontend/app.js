@@ -87,10 +87,57 @@ function init() {
   setupTextInput();
   setupAnalyzeAction();
   setupDemoLoader();
+  setupBackendHealthMonitor();
 
   if (window.lucide) {
     lucide.createIcons();
   }
+}
+
+// 0. Backend Health Monitoring
+function setupBackendHealthMonitor() {
+  const shieldBadge = document.querySelector(".shield-badge");
+  if (!shieldBadge) return;
+
+  const checkHealth = async () => {
+    const dot = shieldBadge.querySelector(".status-dot");
+    const label = shieldBadge.querySelector(".shield-label");
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(`${API_BASE}/health`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        shieldBadge.className = "shield-badge flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs font-medium cursor-pointer transition-all";
+        shieldBadge.title = "ScamWeb Backend Online: AI classifier & threat intelligence operational";
+        if (dot) dot.className = "status-dot h-2 w-2 rounded-full bg-emerald-400 animate-pulse";
+        if (label) label.textContent = "Live AI shield";
+        return true;
+      }
+    } catch {
+      // Backend unreachable
+    }
+
+    shieldBadge.className = "shield-badge flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-rose-950/50 border border-rose-500/40 text-rose-300 text-xs font-medium cursor-pointer transition-all";
+    shieldBadge.title = "Backend offline (http://localhost:3001). Click for setup help.";
+    if (dot) dot.className = "status-dot h-2 w-2 rounded-full bg-rose-500";
+    if (label) label.textContent = "Backend offline";
+    return false;
+  };
+
+  shieldBadge.addEventListener("click", () => {
+    const isOffline = shieldBadge.querySelector(".shield-label")?.textContent.includes("offline");
+    if (isOffline) {
+      showToast("Backend offline: Start it by running 'cd backend && npm run dev' in terminal.", "error");
+    } else {
+      showToast("Backend connection verified: Ready to analyze scams.", "info");
+    }
+  });
+
+  // Run on start and every 12 seconds
+  checkHealth();
+  setInterval(checkHealth, 12000);
 }
 
 // 0. Theme Toggle (Dark / Light Theme Persistence)
@@ -449,7 +496,12 @@ async function executeAnalysis() {
     stopStatusAnimation();
     elements.analyzingCard.style.display = "none";
     elements.scanInputCard.style.display = "flex";
-    showToast(`Error: ${err.message}`, "error");
+
+    const isNetworkError = err.name === "TypeError" && (err.message?.toLowerCase().includes("fetch") || err.message?.toLowerCase().includes("network"));
+    const displayMsg = isNetworkError
+      ? "Cannot connect to ScamWeb backend on port 3001. Please make sure the backend is running (`cd backend && npm run dev`)."
+      : `Error: ${err.message}`;
+    showToast(displayMsg, "error");
   } finally {
     state.isAnalyzing = false;
     updateAnalyzeButtonState();
@@ -579,16 +631,43 @@ function animateScoreCounter(element, targetScore, finalColorClass, duration = 6
 }
 
 function renderResultsBoard(posts, clusters) {
-  elements.itemCountBadge.textContent = `${posts.length} record${posts.length === 1 ? '' : 's'}`;
-
-  elements.analyzedCardsList.innerHTML = "";
-  posts.forEach((item, idx) => {
-    const cardEl = createEvidenceRecordCard(item, idx);
-    elements.analyzedCardsList.appendChild(cardEl);
+  // Filter out "Verified standard ad" (legitimate non-scam items) from scam case file output
+  const scamPosts = posts.filter((p) => {
+    const cat = p.analysis?.category || "";
+    const score = p.analysis?.risk_score ?? 0;
+    const catLabel = formatSentenceCaseCategory(cat);
+    return catLabel !== "Verified standard ad" && !cat.toLowerCase().includes("legitimate") && score >= 40;
   });
 
-  renderClusterSection(clusters, posts);
-  renderReportSection(posts, clusters);
+  elements.analyzedCardsList.innerHTML = "";
+
+  if (scamPosts.length === 0) {
+    elements.itemCountBadge.textContent = "0 threats flagged";
+    const cleanNotice = document.createElement("div");
+    cleanNotice.className = "clean-verified-banner flex items-center space-x-3 p-5 rounded-xl border border-emerald-500/30 bg-emerald-950/20 text-emerald-400 text-sm";
+    cleanNotice.innerHTML = `
+      <div class="h-9 w-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-semibold text-white">Content verified standard — no deceptive patterns found</div>
+        <div class="text-xs text-slate-400 mt-0.5">The analyzed material matches standard commercial advertising. No suspicious payment rails or scam markers were flagged.</div>
+      </div>
+    `;
+    elements.analyzedCardsList.appendChild(cleanNotice);
+  } else {
+    elements.itemCountBadge.textContent = `${scamPosts.length} threat record${scamPosts.length === 1 ? '' : 's'}`;
+    scamPosts.forEach((item, idx) => {
+      const cardEl = createEvidenceRecordCard(item, idx);
+      elements.analyzedCardsList.appendChild(cardEl);
+    });
+  }
+
+  renderClusterSection(clusters, scamPosts);
+  renderReportSection(scamPosts.length > 0 ? scamPosts : posts, clusters);
 }
 
 function createEvidenceRecordCard(post, index) {
@@ -680,11 +759,12 @@ function createEvidenceRecordCard(post, index) {
         <div class="record-category">${escapeHtml(categoryLabel)}</div>
       </div>
 
-      <!-- Dominant Risk Score (Large Monospace Number) -->
-      <div class="record-score-block">
+      <!-- Dominant Risk Score & Dismiss Button -->
+      <div class="record-score-block flex items-center gap-3">
         <span class="score-number" id="score-${post.id}">0</span>
         <span class="score-denom">/100</span>
         <span class="score-level-label ${riskMeta.colorClass}">${riskMeta.label}</span>
+        <button class="remove-record-btn text-slate-500 hover:text-slate-200 transition-colors p-1 text-sm rounded hover:bg-slate-800" title="Remove this record from output">✕</button>
       </div>
     </div>
 
@@ -721,6 +801,14 @@ function createEvidenceRecordCard(post, index) {
       animateScoreCounter(scoreEl, score, riskMeta.colorClass, 600);
     }
   }, 30);
+
+  const removeBtn = card.querySelector(".remove-record-btn");
+  if (removeBtn) {
+    removeBtn.addEventListener("click", () => {
+      card.remove();
+      showToast("Evidence record removed from output.", "info");
+    });
+  }
 
   return card;
 }
@@ -1502,7 +1590,11 @@ function renderReportSection(posts, clusters) {
       renderDossierView(dossierPlaceholder, reportData);
       showToast("Case dossier compiled successfully.", "info");
     } catch (err) {
-      showToast(`Case file error: ${err.message}`, "error");
+      const isNetworkError = err.name === "TypeError" && (err.message?.toLowerCase().includes("fetch") || err.message?.toLowerCase().includes("network"));
+      const displayMsg = isNetworkError
+        ? "Cannot connect to ScamWeb backend on port 3001. Ensure backend is running."
+        : `Case file error: ${err.message}`;
+      showToast(displayMsg, "error");
     } finally {
       generateBtn.disabled = false;
       generateBtn.textContent = "Re-compile case file";
